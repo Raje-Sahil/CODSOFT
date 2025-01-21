@@ -1,0 +1,114 @@
+import json
+from datetime import datetime
+
+# File to store tasks
+data_file = "tasks.json"
+
+def load_tasks():
+    """Load tasks from the JSON file."""
+    try:
+        with open(data_file, "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+def save_tasks(tasks):
+    """Save tasks to the JSON file."""
+    with open(data_file, "w") as file:
+        json.dump(tasks, file, indent=4)
+
+def display_tasks(tasks):
+    """Display all tasks."""
+    if not tasks:
+        print("No tasks found.")
+        return
+
+    print("\nTo-Do List:")
+    for i, task in enumerate(tasks, 1):
+        status = "Complete" if task["completed"] else "Incomplete"
+        print(f"{i}. [ {status} ] {task['title']}")
+        print(f"   Description: {task['description']}")
+        print(f"   Due Date: {task['due_date']}")
+        print(f"   Priority: {task['priority']}\n")
+
+def add_task(tasks):
+    """Add a new task."""
+    title = input("Enter task title: ")
+    description = input("Enter task description: ")
+    due_date = input("Enter due date (YYYY-MM-DD): ")
+    priority = input("Enter priority (High/Medium/Low): ")
+
+    task = {
+        "title": title,
+        "description": description,
+        "due_date": due_date,
+        "priority": priority,
+        "completed": False
+    }
+    tasks.append(task)
+    print("Task added successfully!")
+
+def update_task(tasks):
+    """Update an existing task."""
+    display_tasks(tasks)
+    try:
+        task_no = int(input("Enter task number to update: ")) - 1
+        if 0 <= task_no < len(tasks):
+            task = tasks[task_no]
+            task["title"] = input(f"Enter new title ({task['title']}): ") or task["title"]
+            task["description"] = input(f"Enter new description ({task['description']}): ") or task["description"]
+            task["due_date"] = input(f"Enter new due date ({task['due_date']}): ") or task["due_date"]
+            task["priority"] = input(f"Enter new priority ({task['priority']}): ") or task["priority"]
+            print("Task updated successfully!")
+        else:
+            print("Invalid task number.")
+    except ValueError:
+        print("Invalid input.")
+
+def mark_task_complete(tasks):
+    """Mark a task as complete."""
+    display_tasks(tasks)
+    try:
+        task_no = int(input("Enter task number to mark as complete: ")) - 1
+        if 0 <= task_no < len(tasks):
+            tasks[task_no]["completed"] = True
+            print("Task marked as complete!")
+        else:
+            print("Invalid task number.")
+    except ValueError:
+        print("Invalid input.")
+
+def main():
+    """Main function to run the To-Do List application."""
+    tasks = load_tasks()
+
+    while True:
+        print("\n--- To-Do List Menu ---")
+        print("1. View Tasks")
+        print("2. Add Task")
+        print("3. Update Task")
+        print("4. Mark Task as Complete")
+        print("5. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            display_tasks(tasks)
+        elif choice == "2":
+            add_task(tasks)
+            save_tasks(tasks)
+        elif choice == "3":
+            update_task(tasks)
+            save_tasks(tasks)
+        elif choice == "4":
+            mark_task_complete(tasks)
+            save_tasks(tasks)
+        elif choice == "5":
+            save_tasks(tasks)
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
